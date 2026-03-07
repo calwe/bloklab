@@ -1,6 +1,5 @@
-import { useTexture } from "@react-three/drei";
-import { memo } from "react";
-import { Mesh, NearestFilter } from "three";
+import { memo, useMemo } from "react";
+import { Mesh, NearestFilter, Texture } from "three";
 import { BlockDef, ColorSpace } from "@/types";
 
 export interface BlockProps {
@@ -8,6 +7,10 @@ export interface BlockProps {
   colorSpace: ColorSpace;
   onSelect?: (id: number) => void;
   meshRegistry?: React.RefObject<Map<number, Mesh>>;
+  atlasTexture: Texture;
+  atlasIndex: number;
+  atlasCols: number;
+  atlasRows: number;
 }
 
 const DEG_TO_RAD = Math.PI / 180;
@@ -68,8 +71,16 @@ function getPosition(block: BlockDef, space: ColorSpace): [number, number, numbe
   }
 }
 
-const Block = memo(function Block({ block, colorSpace, onSelect, meshRegistry }: BlockProps) {
-  const texture = useTexture(`/blocks/${block.file}`, (texture) => texture.magFilter = NearestFilter);
+const Block = memo(function Block({ block, colorSpace, onSelect, meshRegistry, atlasTexture, atlasIndex, atlasCols, atlasRows }: BlockProps) {
+  const texture = useMemo(() => {
+    const col = atlasIndex % atlasCols;
+    const row = Math.floor(atlasIndex / atlasCols);
+    const t = atlasTexture.clone();
+    t.repeat.set(1 / atlasCols, 1 / atlasRows);
+    t.offset.set(col / atlasCols, (atlasRows - row - 1) / atlasRows);
+    t.magFilter = NearestFilter;
+    return t;
+  }, [atlasTexture, atlasIndex, atlasCols, atlasRows]);
 
   return (
     <mesh
