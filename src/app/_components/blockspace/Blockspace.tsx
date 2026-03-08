@@ -38,6 +38,15 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
           atlasCols={atlasJson.cols} atlasRows={atlasJson.rows}
           opacity={blocksOpacity} />
       ))}
+    </>
+  );
+}
+
+function GridScene() {
+  const { colorSpace, showGrid, scaleX, scaleZ, scaleRadius, scaleHeight } = useAppSelector((s) => s.blockspace);
+  if (!showGrid) return null;
+  return (
+    <>
       {(colorSpace === "srgb" || colorSpace === "linear_rgb") && <RGBReference scaleX={scaleX} scaleZ={scaleZ} />}
       {colorSpace === "oklch" && <OKLCHReference scaleRadius={scaleRadius} scaleHeight={scaleHeight} />}
       {colorSpace === "hsl"   && <HSLReference scaleRadius={scaleRadius} scaleHeight={scaleHeight} />}
@@ -119,6 +128,7 @@ export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       {showColorspace && <ColorspaceVolume />}
       <BlocksScene blocks={blocks} onSelect={handleSelect} meshRegistry={meshRegistry} />
+      <GridScene />
       <SelectionPopupScene blocks={blocks} />
       <GradientScene blocks={blocks} />
       <EffectComposer autoClear={false}>

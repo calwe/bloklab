@@ -1,14 +1,14 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight, setShowColorspace, setColorspaceOpacity, setColorspacePointSize, setColorspacePointDensity, setShowBlocks, setBlocksOpacity } from "@/store/blockspaceSlice";
+import { setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight, setShowGrid, setShowColorspace, setColorspaceOpacity, setColorspacePointSize, setColorspacePointDensity, setShowBlocks, setBlocksOpacity } from "@/store/blockspaceSlice";
 import Slider from "../ui/Slider";
 
 const pctFormat = (v: number) => `${Math.round(v * 100)}%`;
 
 export default function OptionsPane({ className }: { className?: string }) {
   const dispatch = useAppDispatch();
-  const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight, showColorspace, colorspaceOpacity, colorspacePointSize, colorspacePointDensity, showBlocks, blocksOpacity } = useAppSelector((s) => s.blockspace);
+  const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight, showGrid, showColorspace, colorspaceOpacity, colorspacePointSize, colorspacePointDensity, showBlocks, blocksOpacity } = useAppSelector((s) => s.blockspace);
 
   const isCartesian = colorSpace === "srgb" || colorSpace === "linear_rgb";
 
@@ -28,6 +28,15 @@ export default function OptionsPane({ className }: { className?: string }) {
         {showBlocks && (
           <Slider label="Opacity" min={0} max={1} step={0.01} value={blocksOpacity} onChange={(v) => dispatch(setBlocksOpacity(v))} format={pctFormat} />
         )}
+      </div>
+      <div className="flex items-center justify-between border-t border-neutral-700 pt-4">
+        <span className="text-sm text-neutral-400">Grid</span>
+        <button
+          onClick={() => dispatch(setShowGrid(!showGrid))}
+          className={`text-xs px-2 py-0.5 border ${showGrid ? "border-white text-white" : "border-neutral-600 text-neutral-500"}`}
+        >
+          {showGrid ? "ON" : "OFF"}
+        </button>
       </div>
       <div className="flex flex-col gap-3 border-t border-neutral-700 pt-4">
         <div className="flex items-center justify-between">

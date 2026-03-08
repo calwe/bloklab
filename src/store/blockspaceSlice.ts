@@ -10,6 +10,7 @@ interface BlockspaceState {
   scaleZ: number;
   scaleRadius: number;
   scaleHeight: number;
+  showGrid: boolean;
   showColorspace: boolean;
   colorspaceOpacity: number;
   colorspacePointSize: number;
@@ -27,6 +28,7 @@ const initialState: BlockspaceState = {
   scaleZ: 1,
   scaleRadius: 1,
   scaleHeight: 1,
+  showGrid: true,
   showColorspace: false,
   colorspaceOpacity: 0.6,
   colorspacePointSize: 3,
@@ -67,6 +69,9 @@ const blockspaceSlice = createSlice({
     setScaleHeight(state, action: PayloadAction<number>) {
       state.scaleHeight = action.payload;
     },
+    setShowGrid(state, action: PayloadAction<boolean>) {
+      state.showGrid = action.payload;
+    },
     setShowColorspace(state, action: PayloadAction<boolean>) {
       state.showColorspace = action.payload;
     },
@@ -88,5 +93,5 @@ const blockspaceSlice = createSlice({
   },
 });
 
-export const { setColorSpace, selectBlock, toggleBlock, setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight, setShowColorspace, setColorspaceOpacity, setColorspacePointSize, setColorspacePointDensity, setShowBlocks, setBlocksOpacity } = blockspaceSlice.actions;
+export const { setColorSpace, selectBlock, toggleBlock, setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight, setShowGrid, setShowColorspace, setColorspaceOpacity, setColorspacePointSize, setColorspacePointDensity, setShowBlocks, setBlocksOpacity } = blockspaceSlice.actions;
 export default blockspaceSlice.reducer;
