@@ -12,7 +12,7 @@ import { setColorSpace, toggleBlock } from "@/store/blockspaceSlice";
 const ITEM_HEIGHT = 34;
 
 const COLOR_SPACE_LABELS: Record<ColorSpace, string> = {
-  oklab: "OKLAB",
+  oklch: "OKLCH",
   srgb: "sRGB",
   linear_rgb: "Linear RGB",
   hsl: "HSL",

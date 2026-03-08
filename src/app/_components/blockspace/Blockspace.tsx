@@ -6,18 +6,12 @@ import { CameraControls, useTexture } from "@react-three/drei";
 import { EffectComposer, Outline } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { Mesh } from "three";
-import Block, { CARTESIAN_SCALE } from "./Block";
-import AxisScale, { AxisDef, ColorSpaceGrid } from "./AxisScale";
+import Block from "./Block";
+import { RGBReference, OKLCHReference, HSLReference } from "./scales";
 import { BlockDef } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectBlock, toggleBlock } from "@/store/blockspaceSlice";
 import atlasJson from "@/data/atlas.json";
-
-const RGB_AXES: AxisDef[] = [
-  { dir: [1, 0, 0], label: "Red",   color: "#ff3333", labelRotation: [Math.PI / 2, Math.PI, 0],            flipLabel: true, anchorX: "right" },
-  { dir: [0, 1, 0], label: "Green", color: "#33dd33", labelRotation: [0, Math.PI, Math.PI / 2],            flipLabel: true },
-  { dir: [0, 0, 1], label: "Blue",  color: "#4488ff", labelRotation: [Math.PI / 2, Math.PI, Math.PI / 2] },
-];
 
 function BlocksScene({ blocks, onSelect, meshRegistry }: {
   blocks: BlockDef[];
@@ -35,12 +29,9 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
           atlasTexture={atlasTexture} atlasIndex={i}
           atlasCols={atlasJson.cols} atlasRows={atlasJson.rows} />
       ))}
-      {(colorSpace === "srgb" || colorSpace === "linear_rgb") && (
-        <>
-          <AxisScale axes={RGB_AXES} />
-          <ColorSpaceGrid />
-        </>
-      )}
+      {(colorSpace === "srgb" || colorSpace === "linear_rgb") && <RGBReference />}
+      {colorSpace === "oklch" && <OKLCHReference />}
+      {colorSpace === "hsl"   && <HSLReference />}
     </>
   );
 }

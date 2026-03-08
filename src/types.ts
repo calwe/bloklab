@@ -1,4 +1,4 @@
-export type ColorSpace = "oklab" | "srgb" | "linear_rgb" | "hsl";
+export type ColorSpace = "oklch" | "srgb" | "linear_rgb" | "hsl";
 
 export interface BlockDef {
   id: number;

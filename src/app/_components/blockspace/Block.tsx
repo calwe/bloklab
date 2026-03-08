@@ -17,15 +17,15 @@ const DEG_TO_RAD = Math.PI / 180;
 
 // Base scales for the two space geometries
 export const CARTESIAN_SCALE = 30;
-const CYLINDRICAL_RADIUS_SCALE = 30;
-const CYLINDRICAL_HEIGHT_SCALE = 60;
+export const CYLINDRICAL_RADIUS_SCALE = 30;
+export const CYLINDRICAL_HEIGHT_SCALE = 60;
 
 // OKLab a,b and OKLCH chroma have a smaller range (~0–0.3 vs 0–1),
 // so scale them up proportionally. Lightness (L) is still 0–1,
 // so height keeps the base scale.
 const OK_RANGE_FACTOR = 1 / 0.3;
-const OKLAB_SCALE = CARTESIAN_SCALE * OK_RANGE_FACTOR;
-const OK_HEIGHT_SCALE = CYLINDRICAL_HEIGHT_SCALE;
+export const OKLAB_SCALE = CARTESIAN_SCALE * OK_RANGE_FACTOR;
+export const OK_HEIGHT_SCALE = CYLINDRICAL_HEIGHT_SCALE;
 
 // Center a 0–1 value around the origin
 function center(value: number): number {
@@ -58,11 +58,10 @@ function getPosition(block: BlockDef, space: ColorSpace): [number, number, numbe
     case "hsl":
       return cylindrical(block.hsl.h, block.hsl.s, block.hsl.l, CYLINDRICAL_RADIUS_SCALE, CYLINDRICAL_HEIGHT_SCALE);
 
-    // Cartesian spaces: each component maps to one axis
-    case "oklab": {
-      const { L, a, b } = block.oklab;
-      // a,b range ~[-0.3, 0.3] so no centering needed; L is 0–1 so center it
-      return [a * OKLAB_SCALE, center(L) * OK_HEIGHT_SCALE, b * OKLAB_SCALE];
+    // Cylindrical OKLCH: hue → angle, chroma → radius, lightness → height
+    case "oklch": {
+      const { L, C, H } = block.oklch;
+      return cylindrical(H, C, L, OKLAB_SCALE, OK_HEIGHT_SCALE);
     }
     case "srgb": {
       const { r, g, b } = block.srgb;

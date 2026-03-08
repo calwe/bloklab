@@ -1,7 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Line, Text } from "@react-three/drei";
-import { GridHelper, LineBasicMaterial, Vector3 } from "three";
-import { CARTESIAN_SCALE } from "./Block";
+import { Vector3 } from "three";
 
 export interface AxisDef {
   dir: [number, number, number];
@@ -12,14 +11,22 @@ export interface AxisDef {
   anchorX?: "right";
 }
 
-const FAR = 1000;
+export const FAR = 1000;
 const LABEL_DIST = 7;
 const LABEL_OFFSET = 1;
 const WORLD_UP = new Vector3(0, 1, 0);
 
+// Drei's Line uses LineMaterial (a ShaderMaterial) with fog disabled by default.
+// This wrapper enables fog after mount so the renderer injects scene fog uniforms.
+export function FogLine(props: React.ComponentProps<typeof Line>) {
+  const ref = useRef<any>();
+  useEffect(() => { if (ref.current?.material) ref.current.material.fog = true; }, []);
+  return <Line ref={ref} {...props} />;
+}
+
 function AxisLine({ dir, color = "#888888" }: { dir: [number, number, number]; color?: string }) {
   return (
-    <Line
+    <FogLine
       points={[
         [dir[0] * -FAR, dir[1] * -FAR, dir[2] * -FAR],
         [dir[0] *  FAR, dir[1] *  FAR, dir[2] *  FAR],
@@ -31,33 +38,45 @@ function AxisLine({ dir, color = "#888888" }: { dir: [number, number, number]; c
   );
 }
 
-const GRID_SIZE = FAR * 2;
-const GRID_DIVISIONS = Math.round(GRID_SIZE / (CARTESIAN_SCALE / 2));
+const RING_SEGMENTS = 128;
 
-export function ColorSpaceGrid() {
-  const grids = useMemo(() => {
-    const color = 0x3a3a3a;
-
-    const make = (rx = 0, ry = 0, rz = 0) => {
-      const g = new GridHelper(GRID_SIZE, GRID_DIVISIONS, color, color);
-      const mat = g.material as LineBasicMaterial;
-      mat.transparent = true;
-      mat.opacity = 0.6;
-      mat.depthWrite = false;
-      g.rotation.set(rx, ry, rz);
-      return g;
-    };
-
-    const halfCell = GRID_SIZE / GRID_DIVISIONS / 2;
-    const xzGrid = make();
-    xzGrid.position.set(halfCell, 0, halfCell);
-    return [xzGrid]; // XZ plane (Y = 0)
+export function RingLine({ radius, y, color = "#888888", opacity = 0.4 }: {
+  radius: number;
+  y: number;
+  color?: string;
+  opacity?: number;
+}) {
+  const ref = useRef<any>();
+  useEffect(() => {
+    if (ref.current?.material) {
+      ref.current.material.depthWrite = false;
+      ref.current.material.fog = true;
+    }
   }, []);
 
-  return <>{grids.map((g, i) => <primitive key={i} object={g} />)}</>;
+  const points = useMemo(() => {
+    const pts: [number, number, number][] = [];
+    for (let i = 0; i <= RING_SEGMENTS; i++) {
+      const angle = (i / RING_SEGMENTS) * Math.PI * 2;
+      pts.push([Math.cos(angle) * radius, y, Math.sin(angle) * radius]);
+    }
+    return pts;
+  }, [radius, y]);
+
+  return (
+    <Line
+      ref={ref}
+      points={points}
+      color={color}
+      lineWidth={1}
+      transparent
+      opacity={opacity}
+      renderOrder={0}
+    />
+  );
 }
 
-export default function AxisScale({ axes }: { axes: AxisDef[] }) {
+export function AxisScale({ axes }: { axes: AxisDef[] }) {
   return (
     <>
       {axes.map(({ dir, label, color, labelRotation, flipLabel, anchorX }) => {

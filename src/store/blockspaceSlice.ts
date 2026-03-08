@@ -7,7 +7,7 @@ interface BlockspaceState {
 }
 
 const initialState: BlockspaceState = {
-  colorSpace: "oklab",
+  colorSpace: "oklch",
   selectedBlockId: null,
 };
 
