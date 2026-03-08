@@ -21,6 +21,7 @@ export interface BlockProps {
   atlasIndex: number;
   atlasCols: number;
   atlasRows: number;
+  opacity?: number;
 }
 
 const DEG_TO_RAD = Math.PI / 180;
@@ -44,7 +45,7 @@ function center(value: number): number {
 
 // Map a cylindrical color space (angle + radius + height) to XYZ.
 // Angle drives the direction in XZ, radius the distance, height the Y axis.
-function cylindrical(angle: number, radius: number, height: number, radiusScale: number, heightScale: number): [number, number, number] {
+export function cylindrical(angle: number, radius: number, height: number, radiusScale: number, heightScale: number): [number, number, number] {
   const rad = angle * DEG_TO_RAD;
   return [
     radius * Math.cos(rad) * radiusScale,
@@ -54,7 +55,7 @@ function cylindrical(angle: number, radius: number, height: number, radiusScale:
 }
 
 // Map a cartesian color space (3 independent axes) to XYZ, centered at origin.
-function cartesian(x: number, y: number, z: number, scale: number): [number, number, number] {
+export function cartesian(x: number, y: number, z: number, scale: number): [number, number, number] {
   return [
     x * scale,
     y * scale,
@@ -88,7 +89,7 @@ export function getPosition(block: BlockDef, space: ColorSpace, scales: BlockSca
   }
 }
 
-const Block = memo(function Block({ block, colorSpace, scales, onSelect, meshRegistry, atlasTexture, atlasIndex, atlasCols, atlasRows }: BlockProps) {
+const Block = memo(function Block({ block, colorSpace, scales, onSelect, meshRegistry, atlasTexture, atlasIndex, atlasCols, atlasRows, opacity = 1 }: BlockProps) {
   const texture = useMemo(() => {
     const col = atlasIndex % atlasCols;
     const row = Math.floor(atlasIndex / atlasCols);
@@ -110,7 +111,7 @@ const Block = memo(function Block({ block, colorSpace, scales, onSelect, meshReg
       onClick={(e) => { e.stopPropagation(); onSelect?.(block.id, e.shiftKey); }}
     >
       <boxGeometry args={[1, 1, 1]} />
-      <meshLambertMaterial transparent={block.transparent} map={texture} />
+      <meshLambertMaterial transparent={block.transparent || opacity < 1} opacity={opacity} map={texture} />
     </mesh>
   );
 });

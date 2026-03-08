@@ -11,9 +11,10 @@ interface SliderProps {
   step: number;
   onChange: (value: number) => void;
   onReset?: () => void;
+  format?: (v: number) => string;
 }
 
-export default function Slider({ label, value, min, max, step, onChange, onReset }: SliderProps) {
+export default function Slider({ label, value, min, max, step, onChange, onReset, format }: SliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const percent = (value - min) / (max - min);
 
@@ -45,7 +46,7 @@ export default function Slider({ label, value, min, max, step, onChange, onReset
     <div>
       <div className="flex justify-between mb-1">
         <span className="block text-sm text-neutral-400">{label}</span>
-        <span className="text-sm text-neutral-400">×{value.toFixed(2)}</span>
+        <span className="text-sm text-neutral-400">{format ? format(value) : `×${value.toFixed(2)}`}</span>
       </div>
       <div className="flex gap-1 items-stretch">
         <div

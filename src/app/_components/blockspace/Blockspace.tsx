@@ -11,6 +11,7 @@ import { RGBReference, OKLCHReference, HSLReference } from "./scales";
 import SelectionPopup from "./SelectionPopup";
 import BlockInfoPane from "../panes/BlockInfoPane";
 import GradientScene from "./GradientScene";
+import ColorspaceVolume from "./ColorspaceVolume";
 import { BlockDef } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectBlock, toggleBlock } from "@/store/blockspaceSlice";
@@ -22,9 +23,11 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
   onSelect: (id: number, shiftKey: boolean) => void;
   meshRegistry: React.RefObject<Map<number, Mesh>>;
 }) {
-  const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight } = useAppSelector((s) => s.blockspace);
+  const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight, showBlocks, blocksOpacity } = useAppSelector((s) => s.blockspace);
   const scales: BlockScales = { blockSize, x: scaleX, y: scaleY, z: scaleZ, radius: scaleRadius, height: scaleHeight };
   const atlasTexture = useTexture("/atlas.png");
+
+  if (!showBlocks) return null;
 
   return (
     <>
@@ -32,7 +35,8 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
         <Block key={block.id} block={block} colorSpace={colorSpace} scales={scales}
           onSelect={onSelect} meshRegistry={meshRegistry}
           atlasTexture={atlasTexture} atlasIndex={i}
-          atlasCols={atlasJson.cols} atlasRows={atlasJson.rows} />
+          atlasCols={atlasJson.cols} atlasRows={atlasJson.rows}
+          opacity={blocksOpacity} />
       ))}
       {(colorSpace === "srgb" || colorSpace === "linear_rgb") && <RGBReference scaleX={scaleX} scaleZ={scaleZ} />}
       {colorSpace === "oklch" && <OKLCHReference scaleRadius={scaleRadius} scaleHeight={scaleHeight} />}
@@ -56,6 +60,7 @@ function SelectionPopupScene({ blocks }: { blocks: BlockDef[] }) {
 export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
   const dispatch = useAppDispatch();
   const selectedBlockId = useAppSelector((s) => s.blockspace.selectedBlockId);
+  const showColorspace = useAppSelector((s) => s.blockspace.showColorspace);
   const { selectingSlot, blockAId, blockBId, gradientBlockIds } = useAppSelector((s) => s.gradient);
   const meshRegistry = useRef<Map<number, Mesh>>(new Map());
 
@@ -112,6 +117,7 @@ export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
       <ambientLight intensity={Math.PI / 2} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+      {showColorspace && <ColorspaceVolume />}
       <BlocksScene blocks={blocks} onSelect={handleSelect} meshRegistry={meshRegistry} />
       <SelectionPopupScene blocks={blocks} />
       <GradientScene blocks={blocks} />

@@ -10,6 +10,12 @@ interface BlockspaceState {
   scaleZ: number;
   scaleRadius: number;
   scaleHeight: number;
+  showColorspace: boolean;
+  colorspaceOpacity: number;
+  colorspacePointSize: number;
+  colorspacePointDensity: number;
+  showBlocks: boolean;
+  blocksOpacity: number;
 }
 
 const initialState: BlockspaceState = {
@@ -21,6 +27,12 @@ const initialState: BlockspaceState = {
   scaleZ: 1,
   scaleRadius: 1,
   scaleHeight: 1,
+  showColorspace: false,
+  colorspaceOpacity: 0.6,
+  colorspacePointSize: 3,
+  colorspacePointDensity: 1,
+  showBlocks: true,
+  blocksOpacity: 1.0,
 };
 
 const blockspaceSlice = createSlice({
@@ -55,8 +67,26 @@ const blockspaceSlice = createSlice({
     setScaleHeight(state, action: PayloadAction<number>) {
       state.scaleHeight = action.payload;
     },
+    setShowColorspace(state, action: PayloadAction<boolean>) {
+      state.showColorspace = action.payload;
+    },
+    setColorspaceOpacity(state, action: PayloadAction<number>) {
+      state.colorspaceOpacity = action.payload;
+    },
+    setShowBlocks(state, action: PayloadAction<boolean>) {
+      state.showBlocks = action.payload;
+    },
+    setBlocksOpacity(state, action: PayloadAction<number>) {
+      state.blocksOpacity = action.payload;
+    },
+    setColorspacePointSize(state, action: PayloadAction<number>) {
+      state.colorspacePointSize = action.payload;
+    },
+    setColorspacePointDensity(state, action: PayloadAction<number>) {
+      state.colorspacePointDensity = action.payload;
+    },
   },
 });
 
-export const { setColorSpace, selectBlock, toggleBlock, setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight } = blockspaceSlice.actions;
+export const { setColorSpace, selectBlock, toggleBlock, setBlockSize, setScaleX, setScaleY, setScaleZ, setScaleRadius, setScaleHeight, setShowColorspace, setColorspaceOpacity, setColorspacePointSize, setColorspacePointDensity, setShowBlocks, setBlocksOpacity } = blockspaceSlice.actions;
 export default blockspaceSlice.reducer;
