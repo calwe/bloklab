@@ -16,7 +16,7 @@ export interface BlockProps {
 const DEG_TO_RAD = Math.PI / 180;
 
 // Base scales for the two space geometries
-const CARTESIAN_SCALE = 30;
+export const CARTESIAN_SCALE = 30;
 const CYLINDRICAL_RADIUS_SCALE = 30;
 const CYLINDRICAL_HEIGHT_SCALE = 60;
 
@@ -46,9 +46,9 @@ function cylindrical(angle: number, radius: number, height: number, radiusScale:
 // Map a cartesian color space (3 independent axes) to XYZ, centered at origin.
 function cartesian(x: number, y: number, z: number, scale: number): [number, number, number] {
   return [
-    center(x) * scale,
-    center(y) * scale,
-    center(z) * scale,
+    x * scale,
+    y * scale,
+    z * scale,
   ];
 }
 
@@ -64,10 +64,14 @@ function getPosition(block: BlockDef, space: ColorSpace): [number, number, numbe
       // a,b range ~[-0.3, 0.3] so no centering needed; L is 0–1 so center it
       return [a * OKLAB_SCALE, center(L) * OK_HEIGHT_SCALE, b * OKLAB_SCALE];
     }
-    case "srgb":
-      return cartesian(block.srgb.r, block.srgb.g, block.srgb.b, CARTESIAN_SCALE);
-    case "linear_rgb":
-      return cartesian(block.linear_rgb.r, block.linear_rgb.g, block.linear_rgb.b, CARTESIAN_SCALE);
+    case "srgb": {
+      const { r, g, b } = block.srgb;
+      return cartesian(r, g, b, CARTESIAN_SCALE);
+    }
+    case "linear_rgb": {
+      const { r, g, b } = block.linear_rgb;
+      return cartesian(r, g, b, CARTESIAN_SCALE);
+    }
   }
 }
 
