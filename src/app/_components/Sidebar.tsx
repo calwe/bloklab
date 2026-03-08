@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { List, RowComponentProps, useListRef } from "react-window";
 import { BlockDef, ColorSpace } from "@/types";
-import { Menu } from "lucide-react";
+import { Menu, Spline } from "lucide-react";
 import Select from "./ui/Select";
 import SearchBar from "./ui/SearchBar";
 import SidebarBlock from "./SidebarBlock";
 import SidebarPane from "./SidebarPane";
 import OptionsPane from "./panes/OptionsPane";
+import GradientPane from "./panes/GradientPane";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setColorSpace, toggleBlock } from "@/store/blockspaceSlice";
 
@@ -67,9 +68,12 @@ export default function Sidebar({ blocks }: { blocks: BlockDef[] }) {
 
   return (
     <div className="relative z-10 w-lg flex flex-col bg-neutral-900 border-l-2 border-neutral-600">
-      <div className="absolute top-4 right-full flex flex-col" style={{ zIndex: -1 }}>
+      <div className="absolute top-4 right-full flex flex-col items-end gap-2" style={{ zIndex: -1 }}>
         <SidebarPane icon={<Menu size={14} />} shortcut="o" width="14rem">
           <OptionsPane />
+        </SidebarPane>
+        <SidebarPane icon={<Spline size={14} />} shortcut="g" width="16rem">
+          <GradientPane blocks={blocks} />
         </SidebarPane>
       </div>
 

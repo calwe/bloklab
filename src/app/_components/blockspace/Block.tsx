@@ -15,7 +15,7 @@ export interface BlockProps {
   block: BlockDef;
   colorSpace: ColorSpace;
   scales: BlockScales;
-  onSelect?: (id: number) => void;
+  onSelect?: (id: number, shiftKey: boolean) => void;
   meshRegistry?: React.RefObject<Map<number, Mesh>>;
   atlasTexture: Texture;
   atlasIndex: number;
@@ -107,7 +107,7 @@ const Block = memo(function Block({ block, colorSpace, scales, onSelect, meshReg
       }}
       scale={[scales.blockSize, scales.blockSize, scales.blockSize]}
       position={getPosition(block, colorSpace, scales)}
-      onClick={(e) => { e.stopPropagation(); onSelect?.(block.id); }}
+      onClick={(e) => { e.stopPropagation(); onSelect?.(block.id, e.shiftKey); }}
     >
       <boxGeometry args={[1, 1, 1]} />
       <meshLambertMaterial transparent={block.transparent} map={texture} />

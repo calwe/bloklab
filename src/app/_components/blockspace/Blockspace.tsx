@@ -10,14 +10,16 @@ import Block, { BlockScales, getPosition } from "./Block";
 import { RGBReference, OKLCHReference, HSLReference } from "./scales";
 import SelectionPopup from "./SelectionPopup";
 import BlockInfoPane from "../panes/BlockInfoPane";
+import GradientScene from "./GradientScene";
 import { BlockDef } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectBlock, toggleBlock } from "@/store/blockspaceSlice";
+import { setGradientBlockA, setGradientBlockB, setSelectingSlot } from "@/store/gradientSlice";
 import atlasJson from "@/data/atlas.json";
 
 function BlocksScene({ blocks, onSelect, meshRegistry }: {
   blocks: BlockDef[];
-  onSelect: (id: number) => void;
+  onSelect: (id: number, shiftKey: boolean) => void;
   meshRegistry: React.RefObject<Map<number, Mesh>>;
 }) {
   const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight } = useAppSelector((s) => s.blockspace);
@@ -54,20 +56,56 @@ function SelectionPopupScene({ blocks }: { blocks: BlockDef[] }) {
 export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
   const dispatch = useAppDispatch();
   const selectedBlockId = useAppSelector((s) => s.blockspace.selectedBlockId);
+  const { selectingSlot, blockAId, blockBId, gradientBlockIds } = useAppSelector((s) => s.gradient);
   const meshRegistry = useRef<Map<number, Mesh>>(new Map());
 
-  const handleSelect = useCallback((id: number) => {
-    dispatch(toggleBlock(id));
-  }, [dispatch]);
+  const handleSelect = useCallback((id: number, shiftKey: boolean) => {
+    if (selectingSlot !== null) {
+      dispatch(selectingSlot === 'A' ? setGradientBlockA(id) : setGradientBlockB(id));
+      dispatch(setSelectingSlot(null));
+      dispatch(selectBlock(null));
+    } else if (shiftKey && selectedBlockId !== null && selectedBlockId !== id) {
+      dispatch(setGradientBlockA(selectedBlockId));
+      dispatch(setGradientBlockB(id));
+      dispatch(selectBlock(null));
+    } else {
+      dispatch(toggleBlock(id));
+    }
+  }, [dispatch, selectingSlot, selectedBlockId]);
 
   const selection = useMemo(() => {
     if (selectedBlockId === null) return [];
+    if (selectedBlockId === blockAId || selectedBlockId === blockBId) return [];
+    if (gradientBlockIds.includes(selectedBlockId)) return [];
     const mesh = meshRegistry.current.get(selectedBlockId);
     return mesh ? [mesh] : [];
-  }, [selectedBlockId]);
+  }, [selectedBlockId, blockAId, blockBId, gradientBlockIds]);
+
+  const selectionA = useMemo(() => {
+    if (blockAId === null) return [];
+    const mesh = meshRegistry.current.get(blockAId);
+    return mesh ? [mesh] : [];
+  }, [blockAId]);
+
+  const selectionB = useMemo(() => {
+    if (blockBId === null) return [];
+    const mesh = meshRegistry.current.get(blockBId);
+    return mesh ? [mesh] : [];
+  }, [blockBId]);
+
+  const gradientSelection = useMemo(() => {
+    return gradientBlockIds.flatMap((id) => {
+      const mesh = meshRegistry.current.get(id);
+      return mesh ? [mesh] : [];
+    });
+  }, [gradientBlockIds]);
+
 
   return (
-    <Canvas className="bg-neutral-800" onPointerMissed={() => dispatch(selectBlock(null))}>
+    <Canvas
+      className={`bg-neutral-800 ${selectingSlot ? 'cursor-crosshair' : ''}`}
+      onPointerMissed={() => dispatch(selectBlock(null))}
+    >
       <color attach="background" args={["#262626"]} />
       <fog attach="fog" args={["#262626", 100, 600]} />
       <CameraControls />
@@ -76,13 +114,42 @@ export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       <BlocksScene blocks={blocks} onSelect={handleSelect} meshRegistry={meshRegistry} />
       <SelectionPopupScene blocks={blocks} />
+      <GradientScene blocks={blocks} />
       <EffectComposer autoClear={false}>
         <Outline
           selection={selection}
+          selectionLayer={10}
           blendFunction={BlendFunction.SCREEN}
           edgeStrength={5}
           visibleEdgeColor={0xffffff}
           hiddenEdgeColor={0x888888}
+          xRay
+        />
+        <Outline
+          selection={selectionA}
+          selectionLayer={11}
+          blendFunction={BlendFunction.SCREEN}
+          edgeStrength={5}
+          visibleEdgeColor={0xff3333}
+          hiddenEdgeColor={0x881111}
+          xRay
+        />
+        <Outline
+          selection={selectionB}
+          selectionLayer={12}
+          blendFunction={BlendFunction.SCREEN}
+          edgeStrength={5}
+          visibleEdgeColor={0x3333ff}
+          hiddenEdgeColor={0x111188}
+          xRay
+        />
+        <Outline
+          selection={gradientSelection}
+          selectionLayer={13}
+          blendFunction={BlendFunction.SCREEN}
+          edgeStrength={5}
+          visibleEdgeColor={0xff33ff}
+          hiddenEdgeColor={0x881188}
           xRay
         />
       </EffectComposer>
