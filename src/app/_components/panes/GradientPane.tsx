@@ -43,7 +43,7 @@ export default function GradientPane({ blocks, className }: GradientPaneProps) {
   const bActive = selectingSlot === 'B';
 
   return (
-    <div className={`flex flex-col gap-4 ${className ?? "bg-neutral-900 border-l-2 border-t-2 border-b-2 border-neutral-600 pt-2 p-4"}`} style={className ? undefined : { width: '16rem' }}>
+    <div className={`flex flex-col gap-4 ${className ?? "bg-neutral-900 border-l-2 border-t-2 border-b-2 border-neutral-600 pt-2 p-4"}`} style={className ? undefined : { width: '24rem' }}>
       <div className="flex justify-between">
         <h2>Gradient</h2>
         <Button onClick={() => {
@@ -157,8 +157,8 @@ export default function GradientPane({ blocks, className }: GradientPaneProps) {
               <div key={block.id} style={{ flexShrink: 0, borderBottom: `2px solid rgb(${r},0,${b})` }}>
                 <Image
                   src={`/blocks/${block.file}`}
-                  width={16}
-                  height={16}
+                  width={32}
+                  height={32}
                   alt={block.name}
                   title={block.name}
                   style={{ imageRendering: 'pixelated', display: 'block' }}

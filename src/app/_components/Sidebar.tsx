@@ -86,7 +86,7 @@ export default function Sidebar({ blocks, isOpen, onClose }: SidebarProps) {
         <SidebarPane icon={<Menu size={14} />} shortcut="o" width="14rem">
           <OptionsPane />
         </SidebarPane>
-        <SidebarPane icon={<Spline size={14} />} shortcut="g" width="16rem">
+        <SidebarPane icon={<Spline size={14} />} shortcut="g" width="24rem">
           <GradientPane blocks={blocks} />
         </SidebarPane>
       </div>
