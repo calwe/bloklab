@@ -6,8 +6,10 @@ import { CameraControls, useTexture } from "@react-three/drei";
 import { EffectComposer, Outline } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { Mesh } from "three";
-import Block, { BlockScales } from "./Block";
+import Block, { BlockScales, getPosition } from "./Block";
 import { RGBReference, OKLCHReference, HSLReference } from "./scales";
+import SelectionPopup from "./SelectionPopup";
+import BlockInfoPane from "../panes/BlockInfoPane";
 import { BlockDef } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectBlock, toggleBlock } from "@/store/blockspaceSlice";
@@ -37,6 +39,18 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
   );
 }
 
+function SelectionPopupScene({ blocks }: { blocks: BlockDef[] }) {
+  const { colorSpace, selectedBlockId, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight } = useAppSelector((s) => s.blockspace);
+  const scales: BlockScales = { blockSize, x: scaleX, y: scaleY, z: scaleZ, radius: scaleRadius, height: scaleHeight };
+  const block = selectedBlockId !== null ? (blocks.find((b) => b.id === selectedBlockId) ?? null) : null;
+  if (!block) return null;
+  return (
+    <SelectionPopup position={getPosition(block, colorSpace, scales)}>
+      <BlockInfoPane block={block} />
+    </SelectionPopup>
+  );
+}
+
 export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
   const dispatch = useAppDispatch();
   const selectedBlockId = useAppSelector((s) => s.blockspace.selectedBlockId);
@@ -61,6 +75,7 @@ export default function Blockspace({ blocks }: { blocks: BlockDef[] }) {
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
       <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
       <BlocksScene blocks={blocks} onSelect={handleSelect} meshRegistry={meshRegistry} />
+      <SelectionPopupScene blocks={blocks} />
       <EffectComposer autoClear={false}>
         <Outline
           selection={selection}

@@ -62,7 +62,7 @@ function cartesian(x: number, y: number, z: number, scale: number): [number, num
   ];
 }
 
-function getPosition(block: BlockDef, space: ColorSpace, scales: BlockScales): [number, number, number] {
+export function getPosition(block: BlockDef, space: ColorSpace, scales: BlockScales): [number, number, number] {
   switch (space) {
     // Cylindrical spaces: hue → angle, saturation → radius, lightness → height
     case "hsl": {
