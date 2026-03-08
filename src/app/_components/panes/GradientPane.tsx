@@ -15,9 +15,10 @@ import Button from '../ui/Button';
 
 interface GradientPaneProps {
   blocks: BlockDef[];
+  className?: string;
 }
 
-export default function GradientPane({ blocks }: GradientPaneProps) {
+export default function GradientPane({ blocks, className }: GradientPaneProps) {
   const dispatch = useAppDispatch();
   const { blockAId, blockBId, selectingSlot, radius, steps, gradientBlockIds } = useAppSelector((s) => s.gradient);
 
@@ -42,7 +43,7 @@ export default function GradientPane({ blocks }: GradientPaneProps) {
   const bActive = selectingSlot === 'B';
 
   return (
-    <div className="bg-neutral-900 border-l-2 border-t-2 border-b-2 border-neutral-600 pt-2 p-4 flex flex-col gap-4" style={{ width: '16rem' }}>
+    <div className={`flex flex-col gap-4 ${className ?? "bg-neutral-900 border-l-2 border-t-2 border-b-2 border-neutral-600 pt-2 p-4"}`} style={className ? undefined : { width: '16rem' }}>
       <div className="flex justify-between">
         <h2>Gradient</h2>
         <Button onClick={() => {

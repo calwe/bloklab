@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { List, RowComponentProps, useListRef } from "react-window";
 import { BlockDef, ColorSpace } from "@/types";
-import { Menu, Spline } from "lucide-react";
+import { Menu, Spline, X } from "lucide-react";
 import Select from "./ui/Select";
 import SearchBar from "./ui/SearchBar";
 import SidebarBlock from "./SidebarBlock";
@@ -40,7 +40,13 @@ function Row({ index, style, filteredBlocks, selectedBlockId, onToggle }: RowCom
   );
 }
 
-export default function Sidebar({ blocks }: { blocks: BlockDef[] }) {
+interface SidebarProps {
+  blocks: BlockDef[];
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ blocks, isOpen, onClose }: SidebarProps) {
   const dispatch = useAppDispatch();
   const colorSpace = useAppSelector((s) => s.blockspace.colorSpace);
   const selectedBlockId = useAppSelector((s) => s.blockspace.selectedBlockId);
@@ -67,8 +73,16 @@ export default function Sidebar({ blocks }: { blocks: BlockDef[] }) {
   );
 
   return (
-    <div className="relative z-10 w-lg flex flex-col bg-neutral-900 border-l-2 border-neutral-600">
-      <div className="absolute top-4 right-full flex flex-col items-end gap-2" style={{ zIndex: -1 }}>
+    <div
+      className={`
+        fixed inset-y-0 right-0 z-30 w-full flex flex-col bg-neutral-900 border-l-2 border-neutral-600
+        transition-transform duration-300
+        lg:relative lg:inset-auto lg:w-lg lg:z-10 lg:translate-x-0
+        ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+      `}
+    >
+      {/* Desktop: slide-out panes to the left of sidebar */}
+      <div className="hidden lg:flex absolute top-4 right-full flex-col items-end gap-2" style={{ zIndex: -1 }}>
         <SidebarPane icon={<Menu size={14} />} shortcut="o" width="14rem">
           <OptionsPane />
         </SidebarPane>
@@ -77,11 +91,18 @@ export default function Sidebar({ blocks }: { blocks: BlockDef[] }) {
         </SidebarPane>
       </div>
 
-      {/* Non-positioned wrapper — paints at stacking step 3 (above step 2 z:-1 pane),
-          so bg-neutral-900 covers the pane content when the pane is slid behind the sidebar. */}
+      {/* Non-positioned wrapper — bg-neutral-900 covers pane content when pane is behind sidebar */}
       <div className="flex-1 flex flex-col min-h-0 bg-neutral-900">
+        {/* Mobile header */}
+        <div className="lg:hidden flex items-center justify-between px-5 py-4 border-b border-neutral-600">
+          <h1 className="text-2xl">Blok-LAB</h1>
+          <button onClick={onClose} className="p-1.5 border-2 border-neutral-600 text-neutral-400">
+            <X size={14} />
+          </button>
+        </div>
+
         <div className="p-5 pb-0">
-          <h1 className="mb-5 text-2xl">Blok-LAB</h1>
+          <h1 className="hidden lg:block mb-5 text-2xl">Blok-LAB</h1>
 
           <div className="mb-3">
             <Select

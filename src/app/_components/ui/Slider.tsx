@@ -52,7 +52,7 @@ export default function Slider({ label, value, min, max, step, onChange, onReset
           ref={trackRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
-          className="relative flex-1 h-6 cursor-pointer select-none
+          className="relative flex-1 h-10 lg:h-6 cursor-pointer select-none
             border-t-2 border-l-2 border-b-2 border-r-2
             border-neutral-800 border-b-neutral-500 border-r-neutral-500
             bg-neutral-700"
