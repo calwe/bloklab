@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { List, RowComponentProps, useListRef } from "react-window";
 import { BlockDef, ColorSpace } from "@/types";
-import Select from "./Select";
-import SearchBar from "./SearchBar";
+import { Menu } from "lucide-react";
+import Select from "./ui/Select";
+import SearchBar from "./ui/SearchBar";
 import SidebarBlock from "./SidebarBlock";
+import SidebarPane from "./SidebarPane";
+import OptionsPane from "./panes/OptionsPane";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setColorSpace, toggleBlock } from "@/store/blockspaceSlice";
 
@@ -63,41 +66,51 @@ export default function Sidebar({ blocks }: { blocks: BlockDef[] }) {
   );
 
   return (
-    <div className="w-lg flex flex-col bg-neutral-900 border-l-2 border-neutral-600">
-      <div className="p-5 pb-0">
-        <h1 className="mb-5 text-2xl">Blok-LAB</h1>
-
-        <div className="mb-3">
-          <Select
-            label="Color Space"
-            value={colorSpace}
-            options={(Object.keys(COLOR_SPACE_LABELS) as ColorSpace[]).map((space) => ({
-              value: space,
-              label: COLOR_SPACE_LABELS[space],
-            }))}
-            onChange={(space) => dispatch(setColorSpace(space))}
-          />
-        </div>
-
-        <div className="mb-5">
-          <SearchBar
-            label="Search"
-            value={search}
-            onChange={setSearch}
-            placeholder="Block name..."
-          />
-        </div>
+    <div className="relative z-10 w-lg flex flex-col bg-neutral-900 border-l-2 border-neutral-600">
+      <div className="absolute top-4 right-full flex flex-col" style={{ zIndex: -1 }}>
+        <SidebarPane icon={<Menu size={14} />} shortcut="o" width="14rem">
+          <OptionsPane />
+        </SidebarPane>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <List
-          listRef={listRef}
-          className="h-full"
-          rowCount={filteredBlocks.length}
-          rowHeight={ITEM_HEIGHT}
-          rowComponent={Row}
-          rowProps={rowProps}
-        />
+      {/* Non-positioned wrapper — paints at stacking step 3 (above step 2 z:-1 pane),
+          so bg-neutral-900 covers the pane content when the pane is slid behind the sidebar. */}
+      <div className="flex-1 flex flex-col min-h-0 bg-neutral-900">
+        <div className="p-5 pb-0">
+          <h1 className="mb-5 text-2xl">Blok-LAB</h1>
+
+          <div className="mb-3">
+            <Select
+              label="Color Space"
+              value={colorSpace}
+              options={(Object.keys(COLOR_SPACE_LABELS) as ColorSpace[]).map((space) => ({
+                value: space,
+                label: COLOR_SPACE_LABELS[space],
+              }))}
+              onChange={(space) => dispatch(setColorSpace(space))}
+            />
+          </div>
+
+          <div className="mb-5">
+            <SearchBar
+              label="Search"
+              value={search}
+              onChange={setSearch}
+              placeholder="Block name..."
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <List
+            listRef={listRef}
+            className="h-full"
+            rowCount={filteredBlocks.length}
+            rowHeight={ITEM_HEIGHT}
+            rowComponent={Row}
+            rowProps={rowProps}
+          />
+        </div>
       </div>
     </div>
   );

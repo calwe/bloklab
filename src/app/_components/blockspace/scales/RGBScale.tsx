@@ -12,34 +12,32 @@ const RGB_AXES: AxisDef[] = [
   { dir: [0, 0, 1], label: "Blue",  color: "#4488ff", labelRotation: [Math.PI / 2, Math.PI, Math.PI / 2] },
 ];
 
-function ColorSpaceGrid() {
-  const grids = useMemo(() => {
+function ColorSpaceGrid({ scaleX, scaleZ }: { scaleX: number; scaleZ: number }) {
+  const grid = useMemo(() => {
     const color = 0x3a3a3a;
-
-    const make = (rx = 0, ry = 0, rz = 0) => {
-      const g = new GridHelper(GRID_SIZE, GRID_DIVISIONS, color, color);
-      const mat = g.material as LineBasicMaterial;
-      mat.transparent = true;
-      mat.opacity = 0.6;
-      mat.depthWrite = false;
-      g.rotation.set(rx, ry, rz);
-      return g;
-    };
-
-    const halfCell = GRID_SIZE / GRID_DIVISIONS / 2;
-    const xzGrid = make();
-    xzGrid.position.set(halfCell, 0, halfCell);
-    return [xzGrid]; // XZ plane (Y = 0)
+    const g = new GridHelper(GRID_SIZE, GRID_DIVISIONS, color, color);
+    const mat = g.material as LineBasicMaterial;
+    mat.transparent = true;
+    mat.opacity = 0.6;
+    mat.depthWrite = false;
+    return g;
   }, []);
 
-  return <>{grids.map((g, i) => <primitive key={i} object={g} />)}</>;
+  // halfCell is applied inside the scaled group so the x=0 line stays anchored at world origin:
+  // world_x = scaleX * (halfCell + local_x)  →  line at local_x = -halfCell maps to world 0
+  const halfCell = GRID_SIZE / GRID_DIVISIONS / 2;
+  return (
+    <group scale={[scaleX, 1, scaleZ]}>
+      <primitive object={grid} position={[halfCell, 0, halfCell]} />
+    </group>
+  );
 }
 
-export function RGBReference() {
+export function RGBReference({ scaleX, scaleZ }: { scaleX: number; scaleZ: number }) {
   return (
     <>
       <AxisScale axes={RGB_AXES} />
-      <ColorSpaceGrid />
+      <ColorSpaceGrid scaleX={scaleX} scaleZ={scaleZ} />
     </>
   );
 }

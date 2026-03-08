@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Line, Text } from "@react-three/drei";
 import { Vector3 } from "three";
+import type { Line2 } from "three-stdlib";
 
 export interface AxisDef {
   dir: [number, number, number];
@@ -19,7 +20,7 @@ const WORLD_UP = new Vector3(0, 1, 0);
 // Drei's Line uses LineMaterial (a ShaderMaterial) with fog disabled by default.
 // This wrapper enables fog after mount so the renderer injects scene fog uniforms.
 export function FogLine(props: React.ComponentProps<typeof Line>) {
-  const ref = useRef<any>();
+  const ref = useRef<Line2>(null);
   useEffect(() => { if (ref.current?.material) ref.current.material.fog = true; }, []);
   return <Line ref={ref} {...props} />;
 }
@@ -46,7 +47,7 @@ export function RingLine({ radius, y, color = "#888888", opacity = 0.4 }: {
   color?: string;
   opacity?: number;
 }) {
-  const ref = useRef<any>();
+  const ref = useRef<Line2>(null);
   useEffect(() => {
     if (ref.current?.material) {
       ref.current.material.depthWrite = false;

@@ -6,7 +6,7 @@ import { CameraControls, useTexture } from "@react-three/drei";
 import { EffectComposer, Outline } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { Mesh } from "three";
-import Block from "./Block";
+import Block, { BlockScales } from "./Block";
 import { RGBReference, OKLCHReference, HSLReference } from "./scales";
 import { BlockDef } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -18,20 +18,21 @@ function BlocksScene({ blocks, onSelect, meshRegistry }: {
   onSelect: (id: number) => void;
   meshRegistry: React.RefObject<Map<number, Mesh>>;
 }) {
-  const colorSpace = useAppSelector((s) => s.blockspace.colorSpace);
+  const { colorSpace, blockSize, scaleX, scaleY, scaleZ, scaleRadius, scaleHeight } = useAppSelector((s) => s.blockspace);
+  const scales: BlockScales = { blockSize, x: scaleX, y: scaleY, z: scaleZ, radius: scaleRadius, height: scaleHeight };
   const atlasTexture = useTexture("/atlas.png");
 
   return (
     <>
       {blocks.map((block, i) => (
-        <Block key={block.id} block={block} colorSpace={colorSpace}
+        <Block key={block.id} block={block} colorSpace={colorSpace} scales={scales}
           onSelect={onSelect} meshRegistry={meshRegistry}
           atlasTexture={atlasTexture} atlasIndex={i}
           atlasCols={atlasJson.cols} atlasRows={atlasJson.rows} />
       ))}
-      {(colorSpace === "srgb" || colorSpace === "linear_rgb") && <RGBReference />}
-      {colorSpace === "oklch" && <OKLCHReference />}
-      {colorSpace === "hsl"   && <HSLReference />}
+      {(colorSpace === "srgb" || colorSpace === "linear_rgb") && <RGBReference scaleX={scaleX} scaleZ={scaleZ} />}
+      {colorSpace === "oklch" && <OKLCHReference scaleRadius={scaleRadius} scaleHeight={scaleHeight} />}
+      {colorSpace === "hsl"   && <HSLReference scaleRadius={scaleRadius} scaleHeight={scaleHeight} />}
     </>
   );
 }

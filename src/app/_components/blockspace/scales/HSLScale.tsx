@@ -1,5 +1,5 @@
 import { CylindricalScale } from "./CylindricalScale";
 
-export function HSLReference() {
-  return <CylindricalScale radialLabel="S" />;
+export function HSLReference({ scaleRadius, scaleHeight }: { scaleRadius: number; scaleHeight: number }) {
+  return <CylindricalScale radialLabel="S" scaleRadius={scaleRadius} scaleHeight={scaleHeight} />;
 }

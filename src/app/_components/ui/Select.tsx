@@ -19,7 +19,7 @@ export default function Select<T extends string>({ label, value, options, onChan
       <div className="relative">
         <select
           value={value}
-          onChange={(e) => onChange(e.target.value as T)}
+          onChange={(e) => { onChange(e.target.value as T); e.currentTarget.blur(); }}
           className="w-full appearance-none px-3 py-2 bg-neutral-700 text-white text-sm
             border-t-2 border-l-2 border-neutral-500
             border-b-2 border-r-2 border-b-neutral-800 border-r-neutral-800

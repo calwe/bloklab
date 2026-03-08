@@ -2,9 +2,19 @@ import { memo, useMemo } from "react";
 import { Mesh, NearestFilter, Texture } from "three";
 import { BlockDef, ColorSpace } from "@/types";
 
+export interface BlockScales {
+  blockSize: number;
+  x: number;
+  y: number;
+  z: number;
+  radius: number;
+  height: number;
+}
+
 export interface BlockProps {
   block: BlockDef;
   colorSpace: ColorSpace;
+  scales: BlockScales;
   onSelect?: (id: number) => void;
   meshRegistry?: React.RefObject<Map<number, Mesh>>;
   atlasTexture: Texture;
@@ -52,29 +62,33 @@ function cartesian(x: number, y: number, z: number, scale: number): [number, num
   ];
 }
 
-function getPosition(block: BlockDef, space: ColorSpace): [number, number, number] {
+function getPosition(block: BlockDef, space: ColorSpace, scales: BlockScales): [number, number, number] {
   switch (space) {
     // Cylindrical spaces: hue → angle, saturation → radius, lightness → height
-    case "hsl":
-      return cylindrical(block.hsl.h, block.hsl.s, block.hsl.l, CYLINDRICAL_RADIUS_SCALE, CYLINDRICAL_HEIGHT_SCALE);
-
+    case "hsl": {
+      const [px, py, pz] = cylindrical(block.hsl.h, block.hsl.s, block.hsl.l, CYLINDRICAL_RADIUS_SCALE, CYLINDRICAL_HEIGHT_SCALE);
+      return [px * scales.radius, py * scales.height, pz * scales.radius];
+    }
     // Cylindrical OKLCH: hue → angle, chroma → radius, lightness → height
     case "oklch": {
       const { L, C, H } = block.oklch;
-      return cylindrical(H, C, L, OKLAB_SCALE, OK_HEIGHT_SCALE);
+      const [px, py, pz] = cylindrical(H, C, L, OKLAB_SCALE, OK_HEIGHT_SCALE);
+      return [px * scales.radius, py * scales.height, pz * scales.radius];
     }
     case "srgb": {
       const { r, g, b } = block.srgb;
-      return cartesian(r, g, b, CARTESIAN_SCALE);
+      const [px, py, pz] = cartesian(r, g, b, CARTESIAN_SCALE);
+      return [px * scales.x, py * scales.y, pz * scales.z];
     }
     case "linear_rgb": {
       const { r, g, b } = block.linear_rgb;
-      return cartesian(r, g, b, CARTESIAN_SCALE);
+      const [px, py, pz] = cartesian(r, g, b, CARTESIAN_SCALE);
+      return [px * scales.x, py * scales.y, pz * scales.z];
     }
   }
 }
 
-const Block = memo(function Block({ block, colorSpace, onSelect, meshRegistry, atlasTexture, atlasIndex, atlasCols, atlasRows }: BlockProps) {
+const Block = memo(function Block({ block, colorSpace, scales, onSelect, meshRegistry, atlasTexture, atlasIndex, atlasCols, atlasRows }: BlockProps) {
   const texture = useMemo(() => {
     const col = atlasIndex % atlasCols;
     const row = Math.floor(atlasIndex / atlasCols);
@@ -91,7 +105,8 @@ const Block = memo(function Block({ block, colorSpace, onSelect, meshRegistry, a
         if (mesh) meshRegistry?.current?.set(block.id, mesh);
         else meshRegistry?.current?.delete(block.id);
       }}
-      position={getPosition(block, colorSpace)}
+      scale={[scales.blockSize, scales.blockSize, scales.blockSize]}
+      position={getPosition(block, colorSpace, scales)}
       onClick={(e) => { e.stopPropagation(); onSelect?.(block.id); }}
     >
       <boxGeometry args={[1, 1, 1]} />

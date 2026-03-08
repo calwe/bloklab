@@ -20,16 +20,20 @@ const HUE_LABELS = ["0°", "45°", "90°", "135°", "180°", "225°", "270°", "
 
 interface CylindricalScaleProps {
   radialLabel: string; // "S" for HSL, "C" for OKLCH
+  scaleRadius: number;
+  scaleHeight: number;
 }
 
-export function CylindricalScale({ radialLabel }: CylindricalScaleProps) {
+export function CylindricalScale({ radialLabel, scaleRadius, scaleHeight }: CylindricalScaleProps) {
+  const mainRadius = RADIUS * scaleRadius;
+
   return (
     <>
       <AxisScale axes={L_AXIS} />
 
-      {/* Concentric horizontal rings — brightest at RADIUS, fading inward and outward */}
+      {/* Concentric horizontal rings — brightest at mainRadius, fading inward and outward */}
       {RING_RADII.map((r) => {
-        const opacity = 0.07 + 0.5 * Math.exp(-6 * Math.abs(r - RADIUS) / RADIUS);
+        const opacity = 0.07 + 0.5 * Math.exp(-6 * Math.abs(r - mainRadius) / mainRadius);
         return <RingLine key={r} radius={r} y={0} opacity={opacity} />;
       })}
 
@@ -54,7 +58,7 @@ export function CylindricalScale({ radialLabel }: CylindricalScaleProps) {
         return (
           <Text
             key={deg}
-            position={[Math.cos(rad) * (RADIUS + 2) + Math.sin(rad) * offset, 0, Math.sin(rad) * (RADIUS + 2) - Math.cos(rad) * offset]}
+            position={[Math.cos(rad) * (mainRadius + 2) + Math.sin(rad) * offset, 0, Math.sin(rad) * (mainRadius + 2) - Math.cos(rad) * offset]}
             rotation={[-Math.PI / 2, 0, Math.PI - rad]}
             font="/Minecraftia-Regular.ttf"
             color={`hsl(${deg}, 65%, 60%)`}
@@ -89,17 +93,17 @@ export function CylindricalScale({ radialLabel }: CylindricalScaleProps) {
 
       {/* L=0 / L=1 labels */}
       <Text
-        position={[1, -HALF_HEIGHT, 0]}
+        position={[1, -HALF_HEIGHT * scaleHeight, 0]}
         font="/Minecraftia-Regular.ttf"
         color="#888888"
         fontSize={3}
         anchorX="left"
-        anchorY="top"
+        anchorY="bottom"
       >
         L=0
       </Text>
       <Text
-        position={[1, +HALF_HEIGHT, 0]}
+        position={[1, +HALF_HEIGHT * scaleHeight, 0]}
         font="/Minecraftia-Regular.ttf"
         color="#888888"
         fontSize={3}
